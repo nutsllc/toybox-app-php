@@ -1,0 +1,57 @@
+startonjp-wordpress:
+    image: nutsllc/toybox-nginx:1.15.7-alpine
+    env_file: './.env'
+    volumes:
+        #- /etc/localtime:/etc/localtime:ro
+        - ${REPOSITORY_ROOT}/data/nginx:/usr/share/nginx
+        - ${REPOSITORY_ROOT}/conf/conf.d:/etc/nginx/conf.d
+    links:
+        - startonjp-php-fpm
+    environment:
+        - TOYBOX_UID=${TOYBOX_UID}
+        - TOYBOX_GID=${TOYBOX_GID}
+        - VIRTUAL_HOST=${SITE_URL}
+        #- LETSENCRYPT_HOST=${SITE_URL}
+        #- LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+        - PHP_FPM_HOST=startonjp-php-fpm:9000
+        - PROXY_CACHE=${PROXY_CACHE}
+    ports:
+        - "80"
+
+startonjp-php-fpm:
+    image: nutsllc/toybox-php:7.0-fpm
+    env_file: './.env'
+    volumes:
+        #- /etc/localtime:/etc/localtime:ro
+        - ${REPOSITORY_ROOT}/data/nginx:/usr/share/nginx
+    links:
+        - startonjp-mariadb:${DB_HOST}
+    environment:
+        - TOYBOX_UID=${TOYBOX_UID}
+        - TOYBOX_GID=${TOYBOX_GID}
+        - ALL_PHP_MODULES=enable
+        - WORDPRESS_DB_NAME=${DB_NAME}
+        - WORDPRESS_DB_USER=${DB_NAME}
+        - WORDPRESS_DB_PASSWORD=${DB_PASSWORD}
+        - WORDPRESS_TABLE_PREFIX=${DB_TABLE_PREFIX}
+        - MAX_EXECUTION_TIME=300
+        - MAX_INPUT_TIME=600
+        - MAX_INPUT_VARS=5000
+        - MEMORY_LIMIT=256M
+        - POST_MAX_SIZE=48M
+        - UPLOAD_MAX_FILESIZE=48M
+
+startonjp-mariadb:
+    image: nutsllc/toybox-mariadb:10.1.14
+    env_file: './.env'
+    volumes:
+        #- /etc/localtime:/etc/localtime:ro
+        - ${REPOSITORY_ROOT}/data/mariadb:/var/lib/mysql
+    environment:
+        - TOYBOX_UID=${TOYBOX_UID}
+        - TOYBOX_GID=${TOYBOX_GID}
+        - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+        - MYSQL_DATABASE=${DB_NAME}
+        - MYSQL_USER=${DB_USER}
+        - MYSQL_PASSWORD=${DB_PASSWORD}
+        - TERM=xterm
