@@ -40,6 +40,15 @@ function _setup_wp_admin() {
         --path=/usr/share/nginx/html \
         --allow-root
 }
+function _setup_wp_system() {
+    docker-compose run --rm toybox-wp-cli \
+        wp option update timezone_string 'Asia/Tokyo'
+}
+function _wp_initial_setup() {
+    docker-compose run --rm toybox-wp-cli \
+        wp post delete 1 2 3 --force
+        && wp plugin uninstall 'Hello Dolly'
+}
 
 function setup() {
     _install_wp
