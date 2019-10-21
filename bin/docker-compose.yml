@@ -1,4 +1,4 @@
-startonjp-wordpress:
+toybox-wordpress:
     image: nutsllc/toybox-nginx:1.15.7-alpine
     env_file: './.env'
     volumes:
@@ -6,26 +6,26 @@ startonjp-wordpress:
         - ${REPOSITORY_ROOT}/data/nginx:/usr/share/nginx
         - ${REPOSITORY_ROOT}/conf/conf.d:/etc/nginx/conf.d
     links:
-        - startonjp-php-fpm
+        - toybox-php-fpm
     environment:
         - TOYBOX_UID=${TOYBOX_UID}
         - TOYBOX_GID=${TOYBOX_GID}
         - VIRTUAL_HOST=${SITE_URL}
         #- LETSENCRYPT_HOST=${SITE_URL}
         #- LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
-        - PHP_FPM_HOST=startonjp-php-fpm:9000
+        - PHP_FPM_HOST=toybox-php-fpm:9000
         - PROXY_CACHE=${PROXY_CACHE}
     ports:
         - "80"
 
-startonjp-php-fpm:
+toybox-php-fpm:
     image: nutsllc/toybox-php:7.0-fpm
     env_file: './.env'
     volumes:
         #- /etc/localtime:/etc/localtime:ro
         - ${REPOSITORY_ROOT}/data/nginx:/usr/share/nginx
     links:
-        - startonjp-mariadb:${DB_HOST}
+        - toybox-mariadb:${DB_HOST}
     environment:
         - TOYBOX_UID=${TOYBOX_UID}
         - TOYBOX_GID=${TOYBOX_GID}
@@ -41,7 +41,7 @@ startonjp-php-fpm:
         - POST_MAX_SIZE=48M
         - UPLOAD_MAX_FILESIZE=48M
 
-startonjp-mariadb:
+toybox-mariadb:
     image: nutsllc/toybox-mariadb:10.1.14
     env_file: './.env'
     volumes:
@@ -55,3 +55,11 @@ startonjp-mariadb:
         - MYSQL_USER=${DB_USER}
         - MYSQL_PASSWORD=${DB_PASSWORD}
         - TERM=xterm
+
+toybox-wp-cli:
+    image: cli
+    volumes:
+        - ${REPOSITORY_ROOT}/data/nginx:/usr/share/nginx
+    links:
+        - toybox-mariadb:${DB_HOST}
+

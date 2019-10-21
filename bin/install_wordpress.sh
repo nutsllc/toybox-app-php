@@ -14,11 +14,12 @@ function _print_ok() {
 }
 
 function _prepare() {
-    mkdir -p ${TMP_DIR} ${NGINX_ROOT} ${DOCUMENT_ROOT}
+    mkdir -p ${NGINX_ROOT} ${DOCUMENT_ROOT}
     [ $(ls ${DOCUMENT_ROOT} | wc -l) -ne 0 ] && {
         echo "DocumentRoot (${DOCUMENT_ROOT}) must be empty."
         exit 1;
     }
+    mkdir -p ${TMP_DIR}
     echo '>> start installing WordPress...ok'
 }
 _prepare
